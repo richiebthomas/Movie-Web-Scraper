@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movies</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            
+        }
+        h1 {
+    text-align: center;
+    margin: 20px 0;
+    font-family: Arial, sans-serif; /* Adding a font-family for better typography */
+    color: #ffffff; /* Changing the color to a dark gray for a softer look */
+    font-size: 2em; /* Adjusting the font size for better readability */
+    text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, -2px 2px 0 #000, 2px -2px 0 #000; /* Heavy black outline */
+}
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header button, .header input {
+            margin: 5px;
+            padding: 10px 15px;
+            font-size: 16px;
+        }
+        .header input {
+            width: 300px;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .card {
+            border: 1px solid #b4b2b2;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            width: 200px;
+            background-color: #4d4d4d;
+            transition: box-shadow 0.3s ease;
+            text-align: center;
+            padding: 10px;
+            opacity: 1;
+        }
+        .card:hover {
+            box-shadow: 0 0 10px 2px #fff; /* White shadow */
+        }
+        .card img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-bottom: 0px;
+            opacity: 1;
+        }
+        .card h2 {
+            font-size: 18px;
+            margin: 10px 0;
+            color: #ffffff;
+        }
+        .card button {
+            background-color: #007BFF;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .card button:hover {
+            background-color: #0056b3;
+        }
+        .loading-message {
+            text-align: center;
+            font-size: 1.2em;
+            color: #FF4500;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .coding-animation-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("https://media.istockphoto.com/id/534445692/vector/camera-doodle-illustration.jpg?s=1024x1024&w=is&k=20&c=mlcRFK0fqebL9txNhMqvajaCuUeUn122M7EuVQQJfxg=");
+    background-repeat: no-repeat;
+    background-size: cover;
+    z-index: -1;
+    pointer-events: none;
+        }
+
+        .search-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .search-box input {
+            color: #000;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #000000;
+            box-shadow: 0 0 2px 2px #fff; /* White shadow */
+        }
+
+        .search-box button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 10px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            
+        }
+
+        .about-button 
+            {
+  font-size: 1em;
+  line-height: 1.5em;
+  margin: 1.5em 0;
+  padding: 0;
+  color: #ffffff;
+  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, -1px 1px 0 #000, 1px -1    px 0 #000;
+
+        }
+
+    </style>
+    <script>
+        let movies = []; // Array to hold movie data
+        let page = 1; // Current page
+        const pageSize = 10; // Number of movies per page
+        let loading = false;
+
+        // Fetch initial movies data
+        async function fetchMovies() {
+            try {
+                const response = await fetch(`/movies?page=${page}&size=${pageSize}`);
+                const data = await response.json();
+                movies = movies.concat(data.movies);
+                renderMovies(data.movies);
+                loading = false;
+            } catch (error) {
+                console.error("Error fetching movies:", error);
+            }
+        }
+
+        // Render movies to the DOM
+        function renderMovies(movieList) {
+            const container = document.querySelector('.container');
+            movieList.forEach(movie => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <a href="${movie.Link1}">
+                        <img src="${movie.Thumbnail}" alt="${movie.Name}">
+                    </a>
+                    <h2>${movie.Name}</h2>
+                    
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Infinite scrolling logic
+        function handleScroll() {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200 && !loading) {
+                loading = true;
+                page += 1; // Increment the page number
+                document.querySelector('.loading-message').style.display = 'block';
+                fetchMovies().then(() => {
+                    document.querySelector('.loading-message').style.display = 'none';
+                });
+            }
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchMovies(); // Load the first set of movies
+            window.addEventListener('scroll', handleScroll); // Attach scroll event
+        });
+    </script>
+</head>
+<body>
+    <!-- Background overlay -->
+    <div class="coding-animation-overlay"></div>
+    
+    <h1>Movies List</h1>
+    
+    <div class="header">
+        <div class="search-box">
+        <form action="/search" method="GET" style="display: inline;">
+            <input type="text" name="query" placeholder="Search for a movie...">
+            <button type="submit">Search Movie</button>
+        </form>
+    </div>
+    </div>
+    <a href="about" class="about-button">About Page, Disclaimers Here</a>
+    <div class="container">
+        <!-- Movies will be dynamically inserted here -->
+    </div>
+    <p class="loading-message">Loading more movies...</p>
+</body>
+</html>
